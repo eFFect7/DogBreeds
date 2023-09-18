@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <!-- Search input field -->
+    <!-- Search input-->
     <v-row>
       <v-col cols="12">
         <v-text-field
@@ -33,22 +33,47 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <!-- Pagination controls -->
+    <v-row>
+      <v-col cols="12">
+        <pagination :page-count="Math.ceil(filteredBreeds.length / perPage)" v-model="currentPage" :prev-text="'Previous'" :next-text="'Next'" :container-class="'pagination'"></pagination>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
+
 
 <script>
 import axios from "axios";
 import config from "@/config.js";
+import Pagination from 'vue-pagination-2';
 
 export default {
   name: 'HomeView',
+  components: {
+    Pagination,
+  },
   data() {
     return {
       breeds: [],
       breedImages: {},
       hoveredBreed: null,
       searchQuery: '', // Add searchQuery data property
+      currentPage: 1,
+      perPage: 6,
     };
+  },
+  computed: {
+    filteredBreeds() {
+      const query = this.searchQuery.toLocaleLowerCase();
+      const filtered = this.breed.filter(breed => breed.name.toLocaleLowerCase().includes(query));
+
+      const startIndex = (this.currentPage - 1) * this.perPage;
+      const endIndex = startIndex + this.perPage;
+
+      return filtered.slice(startIndex, endIndex);
+    },
   },
   created() {
     axios
